@@ -30,25 +30,7 @@ describe('level-index', function() {
     db.close(done);
   });
 
-  it('should be able to write to levelup', function(done) {
-    db.batch(testData(), doQuery);
-    function doQuery() {
-      db.get(42, function (err, data) {
-        expect(data.name).to.equal('name 42');
-        done();
-      });
-    }
-  });
-
-  it('should be able to add index functions', function(done) {
-    db = subindex(db);
-    expect(db.ensureIndex).to.be.a('function');
-    expect(db.getBy).to.be.a('function');
-    expect(db.createIndexStream).to.be.a('function');
-    done();
-  });
-
-  it('x should be able to create an index', function(done) {
+  it('should be able to create an index', function(done) {
     db = subindex(db);
 
     db.ensureIndex('name', function (key, value, emit) {
