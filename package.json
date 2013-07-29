@@ -1,7 +1,7 @@
 {
   "name": "subindex",
   "version": "0.0.1",
-  "description": "Generic pluggable indexing system for leveldb/levelup.",
+  "description": "Generic pluggable indexing system for leveldb/levelup. Designed to be used with the level-queryengine query engine.",
   "main": "index.js",
   "scripts": {
     "test": "node_modules/.bin/mocha"
