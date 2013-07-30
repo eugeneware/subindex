@@ -111,6 +111,7 @@ function ensureIndex(idxName) {
   cb = cb || noop;
 
   var options = {
+    name: idxName,
     type: idxType,
     createIndexStream: createIndexStream.bind(db, idxName)
   };
@@ -122,9 +123,9 @@ function ensureIndex(idxName) {
         addToIndex(change);
       } else if (change.type === 'del') {
         db.get(change.key, function (err, value) {
-          emit(change.key, value, function (valueToIndex) {
+          emit.call(db, change.key, value, function (valueToIndex) {
             db.indexDb.del(encode([idxName].concat(valueToIndex).concat(change.key)));
-          });
+          }, options);
         });
       }
     });
@@ -134,13 +135,13 @@ function ensureIndex(idxName) {
 
   function addToIndex(dataToIndex, cb) {
     cb = cb || noop;
-    emit(dataToIndex.key, dataToIndex.value, function (valueToIndex) {
+    emit.call(db, dataToIndex.key, dataToIndex.value, function (valueToIndex) {
       count++;
       db.indexDb.put(encode([idxName].concat(valueToIndex).concat(dataToIndex.key)), dataToIndex.key, function (err) {
         count--;
         cb(err);
       });
-    });
+    }, options);
   }
 
   db.createReadStream()
