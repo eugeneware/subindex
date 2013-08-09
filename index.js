@@ -137,10 +137,12 @@ function ensureIndex(idxName) {
     cb = cb || noop;
     emit.call(db, dataToIndex.key, dataToIndex.value, function (valueToIndex) {
       count++;
-      db.indexDb.put(encode([idxName].concat(valueToIndex).concat(dataToIndex.key)), dataToIndex.key, function (err) {
-        count--;
-        cb(err);
-      });
+      db.indexDb.put(encode([idxName].concat(valueToIndex).concat(dataToIndex.key)),
+          dataToIndex.key,
+        function (err) {
+          count--;
+          cb(err);
+        });
     }, options);
   }
 
