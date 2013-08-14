@@ -1,4 +1,4 @@
-var bytewise = require('byteup')(),
+var bytewise = require('bytewise'),
     sublevel = require('level-sublevel'),
     hooks = require('level-hooks'),
     through = require('through'),

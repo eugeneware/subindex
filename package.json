@@ -38,9 +38,9 @@
   "dependencies": {
     "through": "~2.3.4",
     "level-hooks": "~4.4.3",
-    "byteup": "~0.1.1",
     "level-delete-range": "~0.1.0",
     "level-sublevel": "~4.8.1",
-    "pairs": "0.0.1"
+    "pairs": "0.0.1",
+    "bytewise": "~0.5.0"
   }
 }
