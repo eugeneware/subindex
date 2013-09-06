@@ -256,7 +256,7 @@ describe('level-index', function() {
 
     db.batch(testData());
 
-    setImmediate(function () {
+    process.nextTick(function () {
       db.getBy('*', ['name', 'name 42'], function (err, data) {
         if (err) return done(err);
         expect(data.key).to.equal(42);
