@@ -14,6 +14,8 @@ Some examples of query engines that use this are:
 * [path-engine](https://github.com/eugeneware/path-engine) - Simple javascript object "path" syntax query langauge implemented for levelup **WITH** indexing.
 * [fulltext-engine](https://github.com/eugeneware/fulltext-engine) - Query your levelup/leveldb engine using full text search phrases with INDEXES.
 
+[![build status](https://secure.travis-ci.org/eugeneware/subindex.png)](http://travis-ci.org/eugeneware/subindex)
+
 ## Installation
 
 Install via npm:

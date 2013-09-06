@@ -33,7 +33,8 @@
     "mocha": "~1.12.0",
     "rimraf": "~2.2.2",
     "levelup": "~0.12.0",
-    "leveldown": "~0.6.2"
+    "leveldown": "~0.6.2",
+    "byteup": "~0.1.2"
   },
   "dependencies": {
     "through": "~2.3.4",
