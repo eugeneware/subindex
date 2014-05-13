@@ -18,19 +18,19 @@ function levelIndex(db) {
   hooks(db);
 
   if (!db.ensureIndex) {
-    db.ensureIndex = ensureIndex.bind(db);
+    db.ensureIndex = ensureIndex.bind(null, db);
   }
 
   if (!db.dropIndex) {
-    db.dropIndex = dropIndex.bind(db);
+    db.dropIndex = dropIndex.bind(null, db);
   }
 
   if (!db.getBy) {
-    db.getBy = getBy.bind(db);
+    db.getBy = getBy.bind(null, db);
   }
 
   if (!db.createIndexStream) {
-    db.createIndexStream = createIndexStream.bind(db);
+    db.createIndexStream = createIndexStream.bind(null, db);
   }
 
   if (!db.indexes && !db.indexDb) {
@@ -41,9 +41,7 @@ function levelIndex(db) {
   return db;
 }
 
-function createIndexStream(idxName, options) {
-  var db = this;
-
+function createIndexStream(db, idxName, options) {
   options = options || {};
   options.start = options.start || [ null ];
   options.end = options.end || [ undefined ];
@@ -82,10 +80,9 @@ function propertyIndex(prop) {
   };
 }
 
-function ensureIndex(idxName) {
+function ensureIndex(db, idxName) {
   var idxType, emit, cb;
-  var db = this;
-  var args = [].slice.call(arguments).slice(1);
+  var args = [].slice.call(arguments).slice(2);
   var arg = args.shift();
   if (arg !== undefined && typeof arg === 'string') {
     idxType = arg;
@@ -113,7 +110,7 @@ function ensureIndex(idxName) {
   var options = {
     name: idxName,
     type: idxType,
-    createIndexStream: createIndexStream.bind(db, idxName)
+    createIndexStream: createIndexStream.bind(null, db, idxName)
   };
   db.indexes[idxName] = options;
   db.hooks.pre(
@@ -158,17 +155,15 @@ function ensureIndex(idxName) {
     });
 }
 
-function dropIndex(idxName, cb) {
+function dropIndex(db, idxName, cb) {
   cb = cb || function () {};
-  var db = this;
   deleteRange(db.indexDb, {
     start: encode([idxName, null]),
     end: encode([idxName, undefined])
   }, cb);
 }
 
-function getBy(index, key, cb) {
-  var db = this;
+function getBy(db, index, key, cb) {
   if (!Array.isArray(key)) key = [key];
   var hits = 0;
   db.createIndexStream(index, { start: key.concat(null), end: key.concat(undefined), limit: 1 })
