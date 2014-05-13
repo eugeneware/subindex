@@ -1,6 +1,6 @@
 {
   "name": "subindex",
-  "version": "0.0.5",
+  "version": "1.0.0",
   "description": "Generic pluggable indexing system for leveldb/levelup. Designed to be used with the level-queryengine query engine.",
   "main": "index.js",
   "scripts": {
