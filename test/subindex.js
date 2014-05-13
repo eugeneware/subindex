@@ -1,5 +1,5 @@
 var expect = require('chai').expect,
-    bytewise = require('byteup')(),
+    bytewise = require('bytewise'),
     levelup = require('levelup'),
     path = require('path'),
     subindex = require('../index'),
@@ -23,7 +23,7 @@ describe('level-index', function() {
 
   beforeEach(function(done) {
     rimraf.sync(dbPath);
-    db = levelup(dbPath, { keyEncoding: 'bytewise', valueEncoding: 'json' }, done);
+    db = levelup(dbPath, { valueEncoding: 'json' }, done);
   });
 
   afterEach(function(done) {
@@ -65,7 +65,7 @@ describe('level-index', function() {
       if (err) return done(err);
       db.getBy('name', 'name 42', function (err, data) {
         if (err) return done(err);
-        expect(data.key).to.equal(42);
+        expect(data.key).to.equal('42');
         expect(data.value.name).to.equal('name 42');
         expect(data.value.num).to.equal(420);
         done();
