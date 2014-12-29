@@ -4,6 +4,8 @@ var bytewise = require('bytewise'),
     through = require('through'),
     deleteRange = require('level-delete-range');
 
+var defaults = require('lodash.defaults');
+
 function encode(key) {
   return bytewise.encode(key).toString('hex');
 }
@@ -163,11 +165,17 @@ function dropIndex(db, idxName, cb) {
   }, cb);
 }
 
-function getBy(db, index, key, cb) {
+function getBy(db, index, key, options, cb) {
+  if ('function' == typeof options) {
+    cb = options;
+    options = {};
+  }
+
   if (!Array.isArray(key)) key = [key];
   var hits = 0;
-  db.createIndexStream(index, { start: key.concat(null), end: key.concat(undefined), limit: 1 })
-    .on('data', function (data) {
+  var streamOpts = defaults(options, { start: key.concat(null), end: key.concat(undefined), limit: 1 });
+  db.createIndexStream(index, streamOpts)
+  .on('data', function (data) {
       hits++;
       db.get(data.value, function (err, value) {
         cb(err, { key: data.value, value: value });

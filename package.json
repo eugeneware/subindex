@@ -41,6 +41,7 @@
     "level-delete-range": "~0.1.0",
     "level-sublevel": "^5.2.0",
     "pairs": "0.0.2",
-    "bytewise": "^0.7.0"
+    "bytewise": "^0.7.0",
+    "lodash.defaults": "^2.4.1"
   }
 }
