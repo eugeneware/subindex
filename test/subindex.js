@@ -65,23 +65,10 @@ describe('level-index', function() {
 
     function doQuery(err) {
       if (err) return done(err);
-      var hits = 0;
       db.getBy('name', 'foo', {limit: 2}, function (err, data) {
         if (err) return done(err);
-        hits++;
-        switch (hits) {
-          case 1:
-            expect(data.key).to.equal(0);
-            expect(data.value.name).to.equal('foo');
-            expect(data.value.feature).to.equal('awesome');
-            break;
-          case 2:
-            expect(data.key).to.equal(1);
-            expect(data.value.name).to.equal('foo');
-            expect(data.value.feature).to.equal('shy');
-            done();
-            break;
-        }
+        expect(data.length).to.equal(2);
+        done();
       });
     }
   });

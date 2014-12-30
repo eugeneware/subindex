@@ -36,12 +36,13 @@
     "leveldown": "^0.10.2"
   },
   "dependencies": {
-    "through": "~2.3.4",
-    "level-hooks": "~4.4.3",
-    "level-delete-range": "~0.1.0",
-    "level-sublevel": "^5.2.0",
-    "pairs": "0.0.2",
     "bytewise": "^0.7.0",
-    "lodash.defaults": "^2.4.1"
+    "level-delete-range": "~0.1.0",
+    "level-hooks": "~4.4.3",
+    "level-sublevel": "^5.2.0",
+    "lodash.defaults": "^2.4.1",
+    "pairs": "0.0.2",
+    "through": "~2.3.4",
+    "through2": "^0.6.3"
   }
 }

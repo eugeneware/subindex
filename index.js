@@ -1,7 +1,7 @@
 var bytewise = require('bytewise'),
     sublevel = require('level-sublevel'),
     hooks = require('level-hooks'),
-    through = require('through'),
+    through2 = require('through2'),
     deleteRange = require('level-delete-range');
 
 var defaults = require('lodash.defaults');
@@ -50,8 +50,9 @@ function createIndexStream(db, idxName, options) {
   options.start = encode([idxName].concat(options.start));
   options.end = encode([idxName].concat(options.end));
 
-  return db.indexDb.createReadStream(options).pipe(through(function (data) {
-    this.queue({ key: decode(data.key), value: data.value });
+  return db.indexDb.createReadStream(options)
+  .pipe(through2.obj(function (data, enc, callback) {
+    callback(null, { key: decode(data.key), value: data.value });
   }));
 }
 
@@ -173,19 +174,26 @@ function getBy(db, index, key, options, cb) {
 
   if (!Array.isArray(key)) key = [key];
   var hits = 0;
+  var all = [];
   var streamOpts = defaults(options, { start: key.concat(null), end: key.concat(undefined), limit: 1 });
   db.createIndexStream(index, streamOpts)
+  .pipe(through2.obj(function (data, enc, callback) {
+    db.get(data.value, function (err, value) {
+      callback(null, { key: data.value, value: value });
+    });
+  }))
   .on('data', function (data) {
       hits++;
-      db.get(data.value, function (err, value) {
-        cb(err, { key: data.value, value: value });
-      });
+      all.push(data);
     })
     .on('error', function (err) {
       cb(err);
     })
     .on('end', function () {
-      if (hits === 0) cb({name: 'NotFoundError', message: 'Could not find value based on key: ' + key.toString()});
+      if (hits === 0) {
+        return cb({name: 'NotFoundError', message: 'Could not find value based on key: ' + key.toString()});
+      }
+      return cb(null, all.length > 1 ? all : all[0]);
     });
 }
 
