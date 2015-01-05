@@ -51,6 +51,28 @@ describe('level-index', function() {
     }
   });
 
+  it('should be able to create an index and return multiple hits', function(done) {
+    db = subindex(db);
+
+    db.ensureIndex('name', function (key, value, emit) {
+      if (value.name !== undefined) emit(value.name);
+    });
+
+    db.batch([
+      {type: 'put', key: 0, value: {name: 'foo', feature: 'awesome'}},
+      {type: 'put', key: 1, value: {name: 'foo', feature: 'shy'}}
+    ], doQuery);
+
+    function doQuery(err) {
+      if (err) return done(err);
+      db.getBy('name', 'foo', {limit: 2}, function (err, data) {
+        if (err) return done(err);
+        expect(data.length).to.equal(2);
+        done();
+      });
+    }
+  });
+
   it('should be able to create an index on existing data', function(done) {
     db = subindex(db);
 
