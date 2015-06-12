@@ -7,7 +7,7 @@ var bytewise = require('bytewise'),
 var defaults = require('lodash.defaults');
 
 function encode(key) {
-  return bytewise.encode(key).toString('hex');
+  return Buffer.prototype.toString.call(bytewise.encode(key), 'hex');
 }
 
 function decode(key) {
