@@ -19,7 +19,7 @@ function log() {
 }
 
 describe('level-index', function() {
-  var db, dbPath = path.join(__dirname, '..', 'data', 'test-db');
+  var db, sub, dbPath = path.join(__dirname, '..', 'data', 'test-db');
 
   beforeEach(function(done) {
     rimraf.sync(dbPath);
@@ -31,17 +31,17 @@ describe('level-index', function() {
   });
 
   it('should be able to create an index', function(done) {
-    db = subindex(db);
+    sub = subindex(db);
 
-    db.ensureIndex('name', function (key, value, emit) {
+    sub.ensureIndex('name', function (key, value, emit) {
       if (value.name !== undefined) emit(value.name);
     });
 
-    db.batch(testData(), doQuery);
+    sub.batch(testData(), doQuery);
 
     function doQuery(err) {
       if (err) return done(err);
-      db.getBy('name', 'name 42', function (err, data) {
+      sub.getBy('name', 'name 42', function (err, data) {
         if (err) return done(err);
         expect(data.key).to.equal(42);
         expect(data.value.name).to.equal('name 42');
@@ -52,20 +52,20 @@ describe('level-index', function() {
   });
 
   it('should be able to create an index and return multiple hits', function(done) {
-    db = subindex(db);
+    sub = subindex(db);
 
-    db.ensureIndex('name', function (key, value, emit) {
+    sub.ensureIndex('name', function (key, value, emit) {
       if (value.name !== undefined) emit(value.name);
     });
 
-    db.batch([
+    sub.batch([
       {type: 'put', key: 0, value: {name: 'foo', feature: 'awesome'}},
       {type: 'put', key: 1, value: {name: 'foo', feature: 'shy'}}
     ], doQuery);
 
     function doQuery(err) {
       if (err) return done(err);
-      db.getBy('name', 'foo', {limit: 2}, function (err, data) {
+      sub.getBy('name', 'foo', {limit: 2}, function (err, data) {
         if (err) return done(err);
         expect(data.length).to.equal(2);
         done();
@@ -74,18 +74,18 @@ describe('level-index', function() {
   });
 
   it('should be able to create an index on existing data', function(done) {
-    db = subindex(db);
+    sub = subindex(db);
 
-    db.batch(testData(), function (err) {
+    sub.batch(testData(), function (err) {
       if (err) return done(err);
-      db.ensureIndex('name', function (key, value, emit) {
+      sub.ensureIndex('name', function (key, value, emit) {
         if (value.name !== undefined) emit(value.name);
       }, doQuery);
     });
 
     function doQuery(err) {
       if (err) return done(err);
-      db.getBy('name', 'name 42', function (err, data) {
+      sub.getBy('name', 'name 42', function (err, data) {
         if (err) return done(err);
         expect(data.key).to.equal('42');
         expect(data.value.name).to.equal('name 42');
@@ -96,29 +96,29 @@ describe('level-index', function() {
   });
 
   it('should be able to drop an index', function(done) {
-    db = subindex(db);
+    sub = subindex(db);
 
-    db.ensureIndex('name', function (key, value, emit) {
+    sub.ensureIndex('name', function (key, value, emit) {
       if (value.name !== undefined) emit(value.name);
     });
 
-    db.batch(testData(), doQuery);
+    sub.batch(testData(), doQuery);
 
     function doQuery(err) {
       if (err) return done(err);
-      db.getBy('name', 'name 42', function (err, data) {
+      sub.getBy('name', 'name 42', function (err, data) {
         if (err) return done(err);
         expect(data.key).to.equal(42);
         expect(data.value.name).to.equal('name 42');
         expect(data.value.num).to.equal(420);
 
-        db.dropIndex('name', doQuery2);
+        sub.dropIndex('name', doQuery2);
       });
     }
 
     function doQuery2(err) {
       if (err) return done(err);
-      db.getBy('name', 'name 42', function (err, data) {
+      sub.getBy('name', 'name 42', function (err, data) {
         expect(err.name).to.equal('NotFoundError');
         done();
       });
@@ -126,12 +126,12 @@ describe('level-index', function() {
   });
 
   it('should be able to create a property index with no idx function', function(done) {
-    db = subindex(db);
-    db.ensureIndex('name');
-    db.batch(testData(), doQuery);
+    sub = subindex(db);
+    sub.ensureIndex('name');
+    sub.batch(testData(), doQuery);
 
     function doQuery() {
-      db.getBy('name', 'name 42', function (err, data) {
+      sub.getBy('name', 'name 42', function (err, data) {
         if (err) return done(err);
         expect(data.key).to.equal(42);
         expect(data.value.name).to.equal('name 42');
@@ -142,9 +142,9 @@ describe('level-index', function() {
   });
 
   it('should be able to index arrays', function(done) {
-    db = subindex(db);
+    sub = subindex(db);
 
-    db.ensureIndex('tags', function (key, value, emit) {
+    sub.ensureIndex('tags', function (key, value, emit) {
       if (value.tags !== undefined) {
         if (Array.isArray(value.tags)) {
           value.tags.forEach(function (tag) {
@@ -155,10 +155,10 @@ describe('level-index', function() {
       }
     });
 
-    db.batch(testData(), doQuery);
+    sub.batch(testData(), doQuery);
 
     function doQuery() {
-      db.getBy('tags', 'tag4', function (err, data) {
+      sub.getBy('tags', 'tag4', function (err, data) {
         if (err) return done(err);
         expect(data.key).to.equal(42);
         expect(data.value.name).to.equal('name 42');
@@ -170,16 +170,16 @@ describe('level-index', function() {
   });
 
   it('should be able to handle index deletions', function(done) {
-    db = subindex(db);
+    sub = subindex(db);
 
-    db.ensureIndex('name', function (key, value, emit) {
+    sub.ensureIndex('name', function (key, value, emit) {
       if (value.name !== undefined) emit(value.name);
     });
 
-    db.batch(testData(), doQuery);
+    sub.batch(testData(), doQuery);
 
     function doQuery() {
-      db.getBy('name', 'name 42', function (err, data) {
+      sub.getBy('name', 'name 42', function (err, data) {
         if (err) return done(err);
         expect(data.key).to.equal(42);
         expect(data.value.name).to.equal('name 42');
@@ -189,9 +189,9 @@ describe('level-index', function() {
     }
 
     function doDelete() {
-      db.del(42, function (err) {
+      sub.del(42, function (err) {
         if (err) return done(err);
-        db.getBy('name', 'name 42', function (err, data) {
+        sub.getBy('name', 'name 42', function (err, data) {
           expect(err.name).to.equal('NotFoundError');
           checkIndex();
         });
@@ -199,7 +199,7 @@ describe('level-index', function() {
     }
 
     function checkIndex() {
-      db.indexDb.get(encode(['name', 'name 42', 42]), function (err, data) {
+      sub.indexDb.get(encode(['name', 'name 42', 42]), function (err, data) {
         expect(err.name).to.equal('NotFoundError');
         done();
       });
@@ -207,21 +207,21 @@ describe('level-index', function() {
   });
 
   it('should be able to have multiple indexes', function(done) {
-    db = subindex(db);
+    sub = subindex(db);
 
-    db.ensureIndex('name', function (key, value, emit) {
+    sub.ensureIndex('name', function (key, value, emit) {
       if (value.name !== undefined) emit(value.name);
     });
 
-    db.ensureIndex('num', function (key, value, emit) {
+    sub.ensureIndex('num', function (key, value, emit) {
       if (value.num !== undefined) emit(value.num);
     });
 
-    db.batch(testData(), doQuery);
+    sub.batch(testData(), doQuery);
 
     function doQuery(err) {
       if (err) return done(err);
-      db.getBy('name', 'name 42', function (err, data) {
+      sub.getBy('name', 'name 42', function (err, data) {
         expect(data.key).to.equal(42);
         expect(data.value.name).to.equal('name 42');
         expect(data.value.num).to.equal(420);
@@ -231,7 +231,7 @@ describe('level-index', function() {
 
     function doQuery2(err) {
       if (err) return done(err);
-      db.getBy('num', 60, function (err, data) {
+      sub.getBy('num', 60, function (err, data) {
         expect(data.key).to.equal(6);
         expect(data.value.name).to.equal('name 6');
         expect(data.value.num).to.equal(60);
@@ -241,18 +241,18 @@ describe('level-index', function() {
   });
 
   it('should be able to create an indexStream', function(done) {
-    db = subindex(db);
+    sub = subindex(db);
 
-    db.ensureIndex('name', function (key, value, emit) {
+    sub.ensureIndex('name', function (key, value, emit) {
       if (value.name !== undefined) emit(value.name);
     });
 
-    db.batch(testData(), doStream);
+    sub.batch(testData(), doStream);
 
     function doStream(err) {
       if (err) return done(err);
       var num = 0;
-      var is = db.indexes['name'].createIndexStream()
+      var is = sub.indexes['name'].createIndexStream()
         .on('data', function (data) {
           expect(data.key[0]).to.equal('name');
           expect(data.key[1]).to.equal('name ' + data.value);
@@ -266,9 +266,9 @@ describe('level-index', function() {
   });
 
   it('should be able to index pairs', function(done) {
-    db = subindex(db);
+    sub = subindex(db);
 
-    db.ensureIndex('*', 'pairs', function (key, value, emit) {
+    sub.ensureIndex('*', 'pairs', function (key, value, emit) {
       if (value && typeof value === 'object' && Object.keys(value).length > 0) {
         pairs(value).forEach(function (pair) {
           emit(pair);
@@ -276,10 +276,10 @@ describe('level-index', function() {
       }
     });
 
-    db.batch(testData());
+    sub.batch(testData());
 
     process.nextTick(function () {
-      db.getBy('*', ['name', 'name 42'], function (err, data) {
+      sub.getBy('*', ['name', 'name 42'], function (err, data) {
         if (err) return done(err);
         expect(data.key).to.equal(42);
         expect(data.value.name).to.equal('name 42');
@@ -290,9 +290,9 @@ describe('level-index', function() {
   });
 
   it('should be able to create an indexStream from pairs', function(done) {
-    db = subindex(db);
+    sub = subindex(db);
 
-    db.ensureIndex('*', function (key, value, emit) {
+    sub.ensureIndex('*', function (key, value, emit) {
       if (value && typeof value === 'object' && Object.keys(value).length > 0) {
         pairs(value).forEach(function (pair) {
           emit(pair);
@@ -300,12 +300,12 @@ describe('level-index', function() {
       }
     });
 
-    db.batch(testData(), doStream);
+    sub.batch(testData(), doStream);
 
     function doStream(err) {
       if (err) return done(err);
       var num = 0;
-      var is = db.createIndexStream('*', {
+      var is = sub.createIndexStream('*', {
           start: ['name', 'name 42', null],
           end: ['name', 'name 42', undefined]
         })
@@ -322,9 +322,9 @@ describe('level-index', function() {
   });
 
   it('should be able to find array items', function(done) {
-    db = subindex(db);
+    sub = subindex(db);
 
-    db.ensureIndex('*', function (key, value, emit) {
+    sub.ensureIndex('*', function (key, value, emit) {
       if (value && typeof value === 'object' && Object.keys(value).length > 0) {
         pairs(value).forEach(function (pair) {
           emit(pair);
@@ -332,12 +332,12 @@ describe('level-index', function() {
       }
     });
 
-    db.batch(testData(), doStream);
+    sub.batch(testData(), doStream);
 
     function doStream(err) {
       if (err) return done(err);
       var num = 0;
-      var is = db.createIndexStream('*', {
+      var is = sub.createIndexStream('*', {
           start: ['tags', 'tag1', null],
           end: ['tags', 'tag1', undefined]
         })
