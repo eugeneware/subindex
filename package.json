@@ -32,14 +32,14 @@
     "chai": "^1.9.1",
     "mocha": "^1.18.2",
     "rimraf": "~2.2.2",
-    "levelup": "^0.18.3",
-    "leveldown": "^0.10.2"
+    "leveldown": "^0.10.2",
+    "levelup": "^0.19.0"
   },
   "dependencies": {
     "bytewise": "^0.7.0",
     "level-delete-range": "~0.1.0",
-    "level-hooks": "~4.4.3",
-    "level-sublevel": "^5.2.0",
+    "level-hooks": "~4.5.0",
+    "level-sublevel": "^6.4.6",
     "lodash.defaults": "^2.4.1",
     "pairs": "0.0.2",
     "through": "~2.3.4",
