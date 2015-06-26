@@ -142,3 +142,20 @@ This is a work in progress, some things to be added soon:
 
 * Don't rebuild the whole index every time the `ensureIndex` is run or make it a parameter.
 * Don't store the object key in the value. Just store null or 0.
+
+## Contributing
+
+subindex is an **OPEN Open Source Project**. This means that:
+
+> Individuals making significant and valuable contributions are given commit-access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
+
+See the [CONTRIBUTING.md](https://github.com/eugeneware/subindex/blob/master/CONTRIBUTING.md) file for more details.
+
+### Contributors
+
+subindex is only possible due to the excellent work of the following contributors:
+
+<table><tbody>
+<tr><th align="left">Eugene Ware</th><td><a href="https://github.com/eugeneware">GitHub/eugeneware</a></td></tr>
+<tr><th align="left">Mark Vayngrib</th><td><a href="https://github.com/mvayngrib">GitHub/mvayngrib</a></td></tr>
+</tbody></table>
