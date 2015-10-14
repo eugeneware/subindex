@@ -1,6 +1,5 @@
 var bytewise = require('bytewise'),
     sublevel = require('level-sublevel'),
-    hooks = require('level-hooks'),
     through2 = require('through2'),
     deleteRange = require('level-delete-range');
 
@@ -17,7 +16,6 @@ function decode(key) {
 module.exports = levelIndex;
 function levelIndex(db) {
   db = sublevel(db);
-  hooks(db);
 
   if (!db.ensureIndex) {
     db.ensureIndex = ensureIndex.bind(null, db);
@@ -116,19 +114,17 @@ function ensureIndex(db, idxName) {
     createIndexStream: createIndexStream.bind(null, db, idxName)
   };
   db.indexes[idxName] = options;
-  db.hooks.pre(
-    { start: '\x00', end: '\xFF' },
-    function (change, add, batch) {
-      if (change.type === 'put') {
-        addToIndex(change);
-      } else if (change.type === 'del') {
-        db.get(change.key, function (err, value) {
-          emit.call(db, change.key, value, function (valueToIndex) {
-            db.indexDb.del(encode([idxName].concat(valueToIndex).concat(change.key)));
-          }, options);
-        });
-      }
-    });
+  db.pre(function (change, add, batch) {
+    if (change.type === 'put') {
+      addToIndex(change);
+    } else if (change.type === 'del') {
+      db.get(change.key, function (err, value) {
+        emit.call(db, change.key, value, function (valueToIndex) {
+          db.indexDb.del(encode([idxName].concat(valueToIndex).concat(change.key)));
+        }, options);
+      });
+    }
+  });
 
   var ended = false;
   var count = 0;
@@ -148,13 +144,13 @@ function ensureIndex(db, idxName) {
 
   db.createReadStream()
     .on('data', function write(dataToIndex) {
-        addToIndex(dataToIndex, function (err) {
-          if (count === 0 && ended) cb();
-        });
-      })
+      addToIndex(dataToIndex, function (err) {
+        if (count === 0 && ended) cb();
+      });
+    })
     .on('end', function end() {
-        ended = true;
-        if (count === 0) cb();
+      ended = true;
+      if (count === 0) cb();
     });
 }
 
@@ -177,12 +173,12 @@ function getBy(db, index, key, options, cb) {
   var all = [];
   var streamOpts = defaults(options, { start: key.concat(null), end: key.concat(undefined), limit: 1 });
   db.createIndexStream(index, streamOpts)
-  .pipe(through2.obj(function (data, enc, callback) {
-    db.get(data.value, function (err, value) {
-      callback(null, { key: data.value, value: value });
-    });
-  }))
-  .on('data', function (data) {
+    .pipe(through2.obj(function (data, enc, callback) {
+      db.get(data.value, function (err, value) {
+        callback(null, { key: data.value, value: value });
+      });
+    }))
+    .on('data', function (data) {
       hits++;
       all.push(data);
     })
