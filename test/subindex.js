@@ -4,7 +4,7 @@ var expect = require('chai').expect,
     path = require('path'),
     subindex = require('../index'),
     pairs = require('pairs'),
-    rimraf = require('rimraf');
+    memdown = require('memdown');
 
 function encode(key) {
   return bytewise.encode(key).toString('hex');
@@ -19,11 +19,12 @@ function log() {
 }
 
 describe('level-index', function() {
-  var db, sub, dbPath = path.join(__dirname, '..', 'data', 'test-db');
+  var iteration = 0
+  var db, sub, dbPath;
 
   beforeEach(function(done) {
-    rimraf.sync(dbPath);
-    db = levelup(dbPath, { valueEncoding: 'json' }, done);
+    dbPath = (iteration++) + '.db'
+    db = levelup(dbPath, { valueEncoding: 'json', db: memdown }, done);
   });
 
   afterEach(function(done) {
